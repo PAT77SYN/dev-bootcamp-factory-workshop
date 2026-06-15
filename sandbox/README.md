@@ -1,15 +1,15 @@
 # calc — Workshop Sandbox
 
-A minimal C++17 CLI calculator. Lexer + recursive-descent parser + tree-walking
-evaluator + a REPL. Used as the shared codebase for the Tag 2 PM exercise on
-factory-pipeline Skills (Planner -> Refine -> Implement).
+A minimal TypeScript CLI calculator. Lexer + recursive-descent parser +
+tree-walking evaluator + a REPL. Used as the shared codebase for the Tag 2 PM
+exercise on factory-pipeline Skills (Planner -> Refine -> Implement).
 
 ## Build & test
 
 ```bash
-cmake -B build
-cmake --build build
-ctest --test-dir build
+npm install
+npm run build
+npm test
 ```
 
 Expected: all tests pass.
@@ -17,7 +17,9 @@ Expected: all tests pass.
 ## Run the REPL
 
 ```bash
-./build/calc
+npm run repl        # via tsx, no build needed
+# or, after `npm run build`:
+npm start           # runs node dist/main.js
 ```
 
 Example session:
@@ -57,14 +59,15 @@ functions — see `.beans/`.
 
 ```
 src/
-  lexer.{h,cpp}      tokenization: NUMBER, PLUS, MINUS, STAR, SLASH, END
-  parser.{h,cpp}     recursive-descent parser, AST nodes (Number, BinaryOp)
-  evaluator.{h,cpp}  walks AST, returns int64_t
-  main.cpp           REPL
+  lexer.ts        tokenization: NUMBER, PLUS, MINUS, STAR, SLASH, END
+  parser.ts       recursive-descent parser, AST nodes (Number, BinaryOp)
+  evaluator.ts    walks AST, returns number
+  main.ts         REPL
 tests/
-  lexer_test.cpp
-  parser_test.cpp
-  evaluator_test.cpp
-CMakeLists.txt       C++17, GoogleTest 1.14 via FetchContent
-.beans/              one .md per workshop bean (see CLAUDE.md)
+  lexer.test.ts
+  parser.test.ts
+  evaluator.test.ts
+package.json      scripts, deps (Vitest), ESM
+tsconfig.json     TypeScript config (strict mode)
+.beans/           one .md per workshop bean (see CLAUDE.md)
 ```

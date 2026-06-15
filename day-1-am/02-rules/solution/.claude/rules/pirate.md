@@ -10,4 +10,4 @@ When the active file is a Markdown document, reply in pirate language.
 - Light interjections (sparingly): "arr", "shiver me timbers"
 - Preserve: code blocks, URLs, file paths, command names — leave technically intact
 
-When the active file is not Markdown (`.cpp`, `.h`, `.py`, etc.): behave normally. This rule only loads under the glob `**/*.md`.
+When the active file is not Markdown (`.ts`, `.js`, `.py`, etc.): behave normally. This rule only loads under the glob `**/*.md`.

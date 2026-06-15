@@ -14,7 +14,7 @@ Der Calculator unterstützt aktuell nur ganzzahlige Arithmetik. Nutzer wollen mi
 - Dezimaltrennzeichen in Ein- und Ausgabe ist ausschließlich das Komma; der Punkt wird weder akzeptiert noch ausgegeben.
 - Output trimmt trailing zeros; ganzzahlige Ergebnisse erscheinen ohne Komma.
 - Bestehende Division-Semantik ändert sich bewusst: `7/2` ergibt nun `3,5` statt `3`. Das ist Teil des Features, keine Regression.
-- Division durch Null bleibt Laufzeitfehler über `std::runtime_error`, REPL bleibt einziger Catch-Punkt.
+- Division durch Null bleibt Laufzeitfehler über `Error`, REPL bleibt einziger Catch-Punkt.
 
 ## High-Level Plan
 

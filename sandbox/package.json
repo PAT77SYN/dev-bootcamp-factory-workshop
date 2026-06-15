@@ -1,0 +1,21 @@
+{
+  "name": "calc-sandbox",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Tiny TypeScript CLI calculator — workshop shared codebase",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "repl": "tsx src/main.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.21",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

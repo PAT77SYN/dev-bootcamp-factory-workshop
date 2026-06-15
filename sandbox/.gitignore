@@ -1,6 +1,5 @@
-build/
+node_modules/
+dist/
 .cache/
 .DS_Store
-*.o
-*.obj
-compile_commands.json
+*.tsbuildinfo

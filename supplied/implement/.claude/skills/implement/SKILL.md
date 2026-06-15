@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Use after /refine — takes a bean that carries a `## Refined Plan`, creates a `feat/<bean-id>-<slug>` branch, walks each refined-plan step (edit → cmake build → ctest → commit) with a hard build+test gate, and logs the commits back to the bean. Never pushes, never merges, never commits on `main`.
+description: Use after /refine — takes a bean that carries a `## Refined Plan`, creates a `feat/<bean-id>-<slug>` branch, walks each refined-plan step (edit → npm run build → npm test → commit) with a hard build+test gate, and logs the commits back to the bean. Never pushes, never merges, never commits on `main`.
 argument-hint: <bean-id>
 model: claude-sonnet-4-6
 allowed-tools: Read, Edit, Write, Bash, Glob, Grep
@@ -97,7 +97,7 @@ For each file listed in the step:
 **Step 3.2 — Build**
 
 ```bash
-cmake --build build
+npm run build
 ```
 
 If the build fails, you get **at most 2 fix attempts** for the *current step*.
@@ -109,7 +109,7 @@ remains `in-progress`).
 **Step 3.3 — Test**
 
 ```bash
-ctest --test-dir build --output-on-failure
+npm test
 ```
 
 Same 2-attempt rule. Tests must be green before the commit — there are no
@@ -133,7 +133,7 @@ branches mid-loop.
 Stage only the files this step touched (named, never `-A` / `.`):
 
 ```bash
-git add src/lexer.h src/lexer.cpp tests/lexer_test.cpp
+git add src/lexer.ts tests/lexer.test.ts
 git commit -m "<step description from Refined Plan>"
 SHA=$(git rev-parse --short HEAD)
 ```
@@ -167,7 +167,7 @@ TMP=$(mktemp)
 - <sha2> — <step 2 description>
 - <sha3> — <step 3 description>
 
-**Final test status:** PASS  (ctest --test-dir build → all green)
+**Final test status:** PASS  (npm test → all green)
 EOF
 } > "$TMP"
 
@@ -197,7 +197,7 @@ were exercised by the tests.
 Status stays `in-progress`. Append a `## Implementation Notes` block
 describing: last error message (verbatim), failing test name, source file
 and line, what each fix attempt tried, and the suggested next move (e.g.
-"revise Refined Plan — file at src/foo.cpp:42 doesn't exist").
+"revise Refined Plan — file at src/foo.ts:42 doesn't exist").
 
 ### Phase 6 — Report
 
@@ -213,7 +213,7 @@ Tell the user:
 - **Never commit on `main`.** Run `git rev-parse --abbrev-ref HEAD` before
   *every* commit. If it returns `main`, abort.
 - **Never `git push`.** Never `git merge`. Never `git rebase`.
-- **Tests green before every commit.** If `cmake --build` or `ctest` is red,
+- **Tests green before every commit.** If `npm run build` or `npm test` is red,
   do not stage. Do not commit. Do not "fix in the next commit".
 - **Max 2 fix attempts per step.** After the second red build/test for the
   current step, stop the loop and log state. Do not enter an unbounded
@@ -236,5 +236,5 @@ Tell the user:
   to the user. Spinning up a subagent to "do the implementation" defeats the
   build/test gate and burns tokens.
 - **No restructuring beyond the Refined Plan.** If the plan says "extend
-  switch in parse_factor", don't refactor the parser. Scope discipline keeps
+  switch in parseFactor", don't refactor the parser. Scope discipline keeps
   commits small and reviewable.

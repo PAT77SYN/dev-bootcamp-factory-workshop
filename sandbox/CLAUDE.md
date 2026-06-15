@@ -4,7 +4,7 @@ Context for Claude Code sessions inside this sandbox.
 
 ## What this is
 
-A tiny C++17 CLI calculator used as the **shared codebase** for the Tag 2 PM
+A tiny TypeScript CLI calculator used as the **shared codebase** for the Tag 2 PM
 exercise on factory-pipeline Skills (Planner -> Refine -> Implement).
 
 Participants build their own Skills against this code. Each feature increment
@@ -18,41 +18,42 @@ statuses, commands, workflow). The SessionStart hook does this automatically.
 ## File layout
 
 ```
-src/lexer.{h,cpp}      Token stream. Types: NUMBER, PLUS, MINUS, STAR, SLASH, END.
-src/parser.{h,cpp}     Recursive descent. AST = struct Node { kind, value, op, left, right }.
-src/evaluator.{h,cpp}  Walks AST, returns int64_t. Throws std::runtime_error on div-by-zero.
-src/main.cpp           REPL. Catches std::exception, prints, continues.
-tests/*_test.cpp       GoogleTest. One file per source module.
-CMakeLists.txt         C++17, FetchContent GoogleTest 1.14.
-.beans/<id>.md         Per-feature bean files (managed by beans CLI).
-.beans.yml             Beans CLI config (prefix, id length, defaults).
+src/lexer.ts        Token stream. Types: NUMBER, PLUS, MINUS, STAR, SLASH, END.
+src/parser.ts       Recursive descent. AST = interface Node { kind, value, op, left, right }.
+src/evaluator.ts    Walks AST, returns number. Throws Error on div-by-zero.
+src/main.ts         REPL. Catches Error, prints, continues.
+tests/*.test.ts     Vitest. One file per source module.
+package.json        Scripts, deps. ESM ("type": "module").
+tsconfig.json       TypeScript config (strict mode, emits to dist/).
+.beans/<id>.md      Per-feature bean files (managed by beans CLI).
+.beans.yml          Beans CLI config (prefix, id length, defaults).
 ```
 
 ## Build & test
 
 ```bash
-cmake -B build
-cmake --build build
-ctest --test-dir build
-./build/calc        # REPL
+npm install
+npm run build       # tsc, emits to dist/
+npm test            # vitest run
+npm run repl        # REPL via tsx (no build); or `npm start` after build
 ```
 
 ## Stack conventions
 
-- **C++17.** Use `std::variant`, `std::optional`, `std::string_view` where they
-  clarify intent. Don't reach for newer standards.
-- **GoogleTest only.** No Boost, no Catch2, no extra dependencies. New deps
-  go through FetchContent or they don't go in.
-- **Simple structs over deep OOP.** AST nodes are a single `struct Node` with
-  a `kind` discriminator. Add new node kinds by extending the enum + the
-  evaluator's switch. Resist abstract base classes unless the cost of the
-  switch becomes real.
-- **Errors throw `std::runtime_error`** with a readable message. The REPL is
-  the single catch point. Don't introduce error-code returns.
-- **No allocations in hot loops, but no premature optimization either.**
-  Clarity wins. This is a teaching codebase.
-- **Naming.** snake_case for functions and variables, PascalCase for types,
-  `kFoo` for compile-time constants. Match what's already in `src/`.
+- **TypeScript with `strict` mode.** Lean on the type system. Keep types
+  honest — no `any` escape hatches where a real type clarifies intent.
+- **Vitest only.** No other test frameworks or extra test deps without a good
+  reason. New deps earn their place or they don't go in.
+- **Simple types/interfaces over deep class hierarchies.** `Node` is a single
+  interface with a `kind` discriminator. Add new node kinds by extending the
+  enum + the evaluator's switch. Resist class hierarchies unless the cost of
+  the switch becomes real.
+- **Errors throw `Error`** with a readable message. The REPL is the single
+  catch point. Don't introduce error-code returns.
+- **Clarity over premature optimization.** This is a teaching codebase.
+- **Naming.** camelCase for functions and variables, PascalCase for types and
+  enums. ESM imports use explicit `.js` extensions (e.g.
+  `import { parse } from "./parser.js"`). Match what's already in `src/`.
 
 ## Beans workflow
 
@@ -73,10 +74,11 @@ the full reference.
 
 ## What Claude should not do here
 
-- Don't introduce a build system other than CMake.
-- Don't pull in extra C++ libraries (no Boost, fmt, spdlog, abseil).
+- Don't introduce another build system or test runner (no Jest, Mocha, esbuild
+  scripts, Makefiles — npm + tsc + Vitest is the stack).
+- Don't pull in heavy dependencies needlessly. Keep the dependency tree small.
 - Don't restructure the AST into a class hierarchy "for cleanliness" — the
-  flat struct is intentional.
+  flat interface is intentional.
 - Don't touch files under `01-factory-pipeline/` (sibling dir, obsolete) or
   create `01-planner-rework/` / `02-refine/` / `03-implement/` here — those
   are owned by a different agent.

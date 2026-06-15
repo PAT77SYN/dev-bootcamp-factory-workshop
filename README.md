@@ -131,7 +131,7 @@ day-2-am/
   README.md
 
 sandbox/
-  Small C++ calculator codebase used by the factory
+  Small TypeScript calculator codebase used by the factory
 
 supplied/
   planner/
@@ -147,8 +147,8 @@ Participants need:
 - Claude Code
 - `beans` CLI
 - `jq`
-- `cmake`
-- a C++ compiler
+- Node.js >= 20
+- `npm`
 - `git`
 
 Beans CLI:
@@ -162,8 +162,8 @@ Build the sandbox:
 
 ```bash
 cd sandbox
-cmake -B build
-cmake --build build
-ctest --test-dir build --output-on-failure
+npm install
+npm run build
+npm test
 ```
 

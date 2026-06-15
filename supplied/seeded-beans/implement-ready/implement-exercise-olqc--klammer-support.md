@@ -41,32 +41,33 @@ Der Rechner unterstützt aktuell nur flache Ausdrücke mit `+ - * /` und fest ve
 - Variablen, Funktionen, weitere Operatoren
 - Änderung der bestehenden Operator-Vorrangordnung
 - Performance-Optimierungen am Parser
+
 ## Refined Plan
 
 ### Files to change
-- src/lexer.h:9 — TokenType-Enum um `LPAREN` und `RPAREN` erweitern
-- src/lexer.cpp:39 — Punktuations-Switch in `Lexer::next()` um Branches für `(` und `)` ergänzen, jeweils ein Single-Char-Token zurückgeben
-- src/lexer.cpp:55 — `token_type_name`-Switch um Namen für `LPAREN`/`RPAREN` ergänzen (Parser-Fehlermeldungen)
-- src/parser.h:13 — Grammatik-Kommentar aktualisieren: `factor := NUMBER | '(' expr ')'`
-- src/parser.cpp:64 — `parse_factor()` um `LPAREN`-Alternative: `advance()` über `(`, rekursiv `parse_expr()`, dann `RPAREN` erwarten; leeres `()` und fehlendes `)` als `std::runtime_error` im Stil von :40/:68
-- tests/lexer_test.cpp:16 ja— neuer TEST `LexerTest.Parentheses` analog zu `AllOperators`
-- tests/parser_test.cpp:28 — neue TESTs `ParensGroupOverridesPrecedence`, `NestedParens` analog zu `MulBindsTighterThanAdd`
-- tests/parser_test.cpp:39 — neue TESTs `MissingClosingParenThrows`, `EmptyParensThrows`, `StrayClosingParenThrows` analog zu `TrailingTokenThrows`/`MissingOperandThrows`
-- tests/evaluator_test.cpp:16 — neue TESTs `ParensSimple`, `ParensRightSide`, `NestedParens`, `ParensOverridePrecedence`, `RegressionNoParens` über `eval_str` Helper
+- src/lexer.ts:3 — TokenType-Enum um `LPAREN` und `RPAREN` erweitern
+- src/lexer.ts:49 — Symbol-Switch in `Lexer.next()` um Branches für `(` und `)` ergänzen, jeweils ein Single-Char-Token zurückgeben
+- src/lexer.ts:72 — `tokenTypeName`-Switch um Namen für `LPAREN`/`RPAREN` ergänzen (Parser-Fehlermeldungen)
+- src/parser.ts:35 — Grammatik-Kommentar aktualisieren: `factor := NUMBER | '(' expr ')'`
+- src/parser.ts:85 — `parseFactor()` um `LPAREN`-Alternative: `advance()` über `(`, rekursiv `parseExpr()`, dann `RPAREN` erwarten; leeres `()` und fehlendes `)` als `Error` im Stil von :58/:87
+- tests/lexer.test.ts:13 — neuer `it("tokenizes parentheses")` analog zu „tokenizes all operators"
+- tests/parser.test.ts:27 — neue Tests `it("parens group overrides precedence")`, `it("nested parens")` analog zu „binds multiplication tighter than addition"
+- tests/parser.test.ts:41 — neue Tests `it("throws on a missing closing paren")`, `it("throws on empty parens")`, `it("throws on a stray closing paren")` analog zu „throws on a trailing token"/„throws on a missing operand"
+- tests/evaluator.test.ts:10 — neue Tests `it("parens simple")`, `it("parens on the right side")`, `it("nested parens")`, `it("parens override precedence")`, `it("regression without parens")` über den `evalStr`-Helper
 
 ### New signatures
-- (keine neuen Klassen/Funktionen) — `Token Lexer::next()` und `NodePtr Parser::parse_factor()` behalten ihre Signatur; Erweiterung rein innerhalb bestehender Switches/Branches
+- (keine neuen Klassen/Funktionen) — `Lexer.next(): Token` und `Parser.parseFactor(): Node` behalten ihre Signatur; Erweiterung rein innerhalb bestehender Switches/Branches
 - AST/Evaluator unverändert — Gruppierung wird durch Baumform kodiert, kein neuer `NodeKind`
 
 ### Test sketch
-- LexerTest.Parentheses — Input `"()"` → Token-Sequenz `LPAREN, RPAREN, END`
-- ParserTest.ParensGroupOverridesPrecedence — Input `"(1+2)*3"` → AST `Mul(Add(1,2), 3)`
-- ParserTest.NestedParens — Input `"((1+2)*(3+4))"` → AST `Mul(Add(1,2), Add(3,4))`
-- ParserTest.MissingClosingParenThrows — Input `"(1+2"` → `std::runtime_error`
-- ParserTest.EmptyParensThrows — Input `"()"` → `std::runtime_error`
-- ParserTest.StrayClosingParenThrows — Input `"1+2)"` → `std::runtime_error`
-- EvaluatorTest.ParensSimple — Input `"(1+2)*3"` → `9`
-- EvaluatorTest.ParensRightSide — Input `"2*(3+4)"` → `14`
-- EvaluatorTest.NestedParens — Input `"((1+2)*(3+4))"` → `21`
-- EvaluatorTest.ParensOverridePrecedence — Input `"(2+3)*(4-1)"` → `15`
-- EvaluatorTest.RegressionNoParens — Input `"1+2*3"` → `7` (unverändertes Verhalten)
+- lexer „tokenizes parentheses" — Input `"()"` → Token-Sequenz `LPAREN, RPAREN, END`
+- parser „parens group overrides precedence" — Input `"(1+2)*3"` → AST `Mul(Add(1,2), 3)`
+- parser „nested parens" — Input `"((1+2)*(3+4))"` → AST `Mul(Add(1,2), Add(3,4))`
+- parser „throws on a missing closing paren" — Input `"(1+2"` → `Error`
+- parser „throws on empty parens" — Input `"()"` → `Error`
+- parser „throws on a stray closing paren" — Input `"1+2)"` → `Error`
+- evaluator „parens simple" — Input `"(1+2)*3"` → `9`
+- evaluator „parens on the right side" — Input `"2*(3+4)"` → `14`
+- evaluator „nested parens" — Input `"((1+2)*(3+4))"` → `21`
+- evaluator „parens override precedence" — Input `"(2+3)*(4-1)"` → `15`
+- evaluator „regression without parens" — Input `"1+2*3"` → `7` (unverändertes Verhalten)

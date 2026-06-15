@@ -71,7 +71,7 @@ no code:
 - path:line — why this file is relevant
 
 ### Functions
-- ReturnType Class::method(Args) — existing signature, file:line
+- methodName(args): ReturnType — existing signature, file:line
 
 ### Integration points
 - where the new code plugs into existing call chains (file:line → file:line)
@@ -100,8 +100,8 @@ Build the Refined Plan block in this exact schema:
 - path:NEW — new file, why it's needed
 
 ### New signatures
-- ReturnType Class::method(Args) — purpose in 5–10 words
-- ReturnType free_function(Args) — purpose
+- methodName(args): ReturnType — purpose in 5–10 words
+- freeFunction(args): ReturnType — purpose
 
 ### Test sketch
 - test_name — Input → Expected
@@ -131,12 +131,12 @@ TMP=$(mktemp)
 ## Refined Plan
 
 ### Files to change
-- src/lexer.cpp:42 — add LPAREN/RPAREN token branches
-- src/parser.cpp:NEW — add parse_group() production
+- src/lexer.ts:42 — add LPAREN/RPAREN token branches
+- src/parser.ts:NEW — add parseGroup() production
 
 ### New signatures
-- Token Lexer::next_token() — unchanged callers; new switch arms
-- std::unique_ptr<Expr> Parser::parse_group() — consumes `(`, expr, `)`
+- next(): Token — unchanged callers; new switch arms
+- parseGroup(): Node — private Parser method; consumes "(", expr, ")"
 
 ### Test sketch
 - ParensSimple — Input "(1+2)*3" → 9

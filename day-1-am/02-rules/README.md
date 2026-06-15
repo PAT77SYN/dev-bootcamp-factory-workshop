@@ -28,22 +28,22 @@ When working on Markdown files, answer in pirate style.
 Then test:
 
 1. Ask Claude Code to edit or review a Markdown file.
-2. Ask Claude Code to inspect `exercise/main.cpp`.
+2. Ask Claude Code to inspect `exercise/main.ts`.
 
 ## Verify
 
 - Markdown work activates the pirate behavior.
-- C++ work does not.
+- TypeScript work does not.
 - The trigger is the glob scope, not a Skill description.
 
 ## Stretch
 
-Create a second Rule for modern C++ conventions and test it against `exercise/main.cpp`.
+Create a second Rule for modern TypeScript conventions (glob `**/*.ts`) and test it against `exercise/main.ts`.
 
 Reference solutions:
 
 ```text
 solution/.claude/rules/pirate.md
-solution/.claude/rules/cpp-modern.md
+solution/.claude/rules/ts-modern.md
 ```
 
