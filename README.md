@@ -148,7 +148,7 @@ Participants need:
 - `beans` CLI
 - `jq`
 - Node.js >= 20
-- `npm`
+- `npm` for installing dependencies, building TypeScript, and running tests
 - `git`
 
 Beans CLI:
@@ -166,4 +166,3 @@ npm install
 npm run build
 npm test
 ```
-
