@@ -155,7 +155,7 @@ Beans CLI:
 
 ```bash
 brew install hmans/beans/beans
-beans --version
+beans version
 ```
 
 Build the sandbox:
