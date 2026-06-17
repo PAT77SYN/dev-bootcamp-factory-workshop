@@ -27,3 +27,32 @@ EOF
 } > \"$TMP\"
 beans update sandbox-vzwt --body-file \"$TMP\"
 rm \"$TMP\"","outcome":"pass","first_error":""}
+{"at":"2026-06-17T09:08:24Z","session":"7aaadf4e-0b4a-4f55-b035-b90e2810b2b5","cmd":"rtk npm run build 2>&1 && npm test 2>&1","outcome":"pass","first_error":""}
+{"at":"2026-06-17T09:08:50Z","session":"7aaadf4e-0b4a-4f55-b035-b90e2810b2b5","cmd":"rtk npm run build 2>&1 && npm test 2>&1","outcome":"pass","first_error":""}
+{"at":"2026-06-17T09:09:11Z","session":"7aaadf4e-0b4a-4f55-b035-b90e2810b2b5","cmd":"rtk npm run build 2>&1 && npm test 2>&1","outcome":"pass","first_error":""}
+{"at":"2026-06-17T09:09:32Z","session":"7aaadf4e-0b4a-4f55-b035-b90e2810b2b5","cmd":"rtk npm run build 2>&1 && npm test 2>&1","outcome":"pass","first_error":""}
+{"at":"2026-06-17T09:09:49Z","session":"7aaadf4e-0b4a-4f55-b035-b90e2810b2b5","cmd":"rtk npm run build 2>&1 && npm test 2>&1","outcome":"pass","first_error":""}
+{"at":"2026-06-17T09:10:04Z","session":"7aaadf4e-0b4a-4f55-b035-b90e2810b2b5","cmd":"BRANCH=\"feat/sandbox-vzwt-kommazahlen-support-im-calculator\"
+CURRENT=$(beans show sandbox-vzwt --json | jq -r '.body')
+[ -z \"$CURRENT\" ] || [ \"$CURRENT\" = \"null\" ] && { echo \"ERROR: empty body\"; exit
+TMP=$(mktemp)
+{
+printf '%s\n\n' \"$CURRENT\"
+cat <<EOF
+## Implementation Log
+
+**Branch:** $BRANCH
+
+**Commits:**
+- a7fd63c — Lexer: accept comma as decimal separator; reject double-comma
+- f16208f — Evaluator: remove Math.trunc(), division now returns float
+- ee036c2 — Add formatResult: comma decimal separator, no trailing zeros
+- 5188ab5 — Main: wire formatResult into REPL output
+- 66b354d — Add end-to-end tests covering all Acceptance Criteria
+
+**Final test status:** PASS  (npm test → 29 tests, 5 files, all green)
+EOF
+} > \"$TMP\"
+beans update sandbox-vzwt --body-file \"$TMP\"
+rm \"$TMP\"
+beans update sandbox-vzwt -s completed","outcome":"pass","first_error":""}

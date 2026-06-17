@@ -14,8 +14,12 @@ branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
 changed="$(git diff --name-only 2>/dev/null | wc -l | tr -d ' ')"
 commits="$(git rev-list --count HEAD 2>/dev/null || echo 0)"
 
-# Active bean (first in-progress, else "none")
+# Active bean: prefer in-progress; fall back to bean ID embedded in branch name (feat/<id>-<slug>)
 bean="$(beans list --json -s in-progress 2>/dev/null | jq -r '.[0].id // "none"')"
+if [ "$bean" = "none" ]; then
+  bean="$(echo "$branch" | sed 's|^feat/||' | grep -oE '^[a-z]+-[a-z0-9]{4}' || echo none)"
+  [ -z "$bean" ] && bean="none"
+fi
 
 # Transcript path and turn count (non-fatal if missing)
 project_encoded="$(echo "${project_dir}" | sed 's|[/.]|-|g')"

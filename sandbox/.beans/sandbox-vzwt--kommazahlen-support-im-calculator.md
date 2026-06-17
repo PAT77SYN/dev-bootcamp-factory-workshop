@@ -1,11 +1,11 @@
 ---
 # sandbox-vzwt
 title: Kommazahlen-Support im Calculator
-status: in-progress
+status: completed
 type: feature
 priority: normal
 created_at: 2026-05-26T13:22:49Z
-updated_at: 2026-06-17T09:07:15Z
+updated_at: 2026-06-17T09:10:04Z
 ---
 
 Der Calculator unterstützt aktuell nur ganzzahlige Arithmetik. Nutzer wollen mit Dezimalwerten rechnen (z.B. `1,5 + 2,5`). Dieses Feature stellt die gesamte Rechen-Pipeline auf Fließkomma um, akzeptiert Komma als Dezimaltrennzeichen in der Eingabe und gibt Ergebnisse ohne überflüssige Nullen aus.
@@ -97,3 +97,16 @@ Der Calculator unterstützt aktuell nur ganzzahlige Arithmetik. Nutzer wollen mi
 - **format.ts** (new): `formatResult(value)` renders numbers with comma as decimal separator, strips trailing zeros, integer results appear without comma.
 - **Main/REPL**: output now routed through `formatResult` — no dot ever appears in output.
 - **Tests**: lexer, evaluator, format, and E2E test files updated/added; all six Acceptance Criteria exercised and passing.
+
+## Implementation Log
+
+**Branch:** feat/sandbox-vzwt-kommazahlen-support-im-calculator
+
+**Commits:**
+- a7fd63c — Lexer: accept comma as decimal separator; reject double-comma
+- f16208f — Evaluator: remove Math.trunc(), division now returns float
+- ee036c2 — Add formatResult: comma decimal separator, no trailing zeros
+- 5188ab5 — Main: wire formatResult into REPL output
+- 66b354d — Add end-to-end tests covering all Acceptance Criteria
+
+**Final test status:** PASS  (npm test → 29 tests, 5 files, all green)
