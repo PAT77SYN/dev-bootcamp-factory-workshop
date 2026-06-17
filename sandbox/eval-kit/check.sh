@@ -27,9 +27,10 @@ grep -qx '## Refined Plan' <<<"$BODY" \
   && pass "Refined Plan is present" \
   || fail "Refined Plan is present"
 
-# --- your turn: add a couple, same shape. an idea to uncomment: ---
+# 3. Acceptance criteria are not a placeholder like "it works".
+grep -qi 'it works' <<<"$BODY" \
+  && fail "acceptance criteria are real" \
+  || pass "acceptance criteria are real"
 
-# acceptance criteria are not a placeholder like "it works":
- grep -qi 'it works' <<<"$BODY" \
-   && fail "acceptance criteria are real" \
-   || pass "acceptance criteria are real"
+# 4. LLM judge: acceptance criteria are specific and measurable, not vague.
+bash "$(dirname "$0")/judges/ac-specific.sh" "$BEAN"
