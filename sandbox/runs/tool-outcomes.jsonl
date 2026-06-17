@@ -56,3 +56,53 @@ EOF
 beans update sandbox-vzwt --body-file \"$TMP\"
 rm \"$TMP\"
 beans update sandbox-vzwt -s completed","outcome":"pass","first_error":""}
+{"at":"2026-06-17T09:56:03Z","session":"7aaadf4e-0b4a-4f55-b035-b90e2810b2b5","cmd":"rtk npm run build 2>&1 && npm test 2>&1","outcome":"pass","first_error":""}
+{"at":"2026-06-17T09:56:23Z","session":"7aaadf4e-0b4a-4f55-b035-b90e2810b2b5","cmd":"BRANCH=\"feat/sandbox-v4n6-preflight-gate-block-implement-if-eval\"
+CURRENT=$(beans show sandbox-v4n6 --json | jq -r '.body')
+[ -z \"$CURRENT\" ] || [ \"$CURRENT\" = \"null\" ] && { echo \"ERROR: empty body\"; exit
+TMP=$(mktemp)
+{
+printf '%s\n\n' \"$CURRENT\"
+cat <<EOF
+## Implementation Log
+
+**Branch:** $BRANCH
+
+**Commits:**
+- e90e153 — Preflight gate: abort /implement if eval harness has any FAIL
+
+**Final test status:** PASS  (npm test → 29 tests, 5 files, all green)
+
+## Summary of Changes
+
+- Added eval-harness gate to Phase 1 preflight in \`.claude/skills/implement/SKI
+- All four Acceptance Criteria exercised: pass-through on clean bean, abort on v
+EOF
+} > \"$TMP\"
+beans update sandbox-v4n6 --body-file \"$TMP\"
+rm \"$TMP\"
+beans update sandbox-v4n6 -s completed","outcome":"pass","first_error":""}
+{"at":"2026-06-17T10:13:54Z","session":"7aaadf4e-0b4a-4f55-b035-b90e2810b2b5","cmd":"CURRENT=$(beans show sandbox-1e0y --json | jq -r '.body')
+[ -z \"$CURRENT\" ] || [ \"$CURRENT\" = \"null\" ] && { echo \"ERROR: empty body\"; exit
+TMP=$(mktemp)
+{
+printf '%s\n\n' \"$CURRENT\"
+cat <<'EOF'
+## Refined Plan
+
+### Files to change
+- docs/TAKEAWAY.md:NEW — single 1-pager in layered-journey structure: orientatio
+
+### New signatures
+- (none) — documentation task; no source functions
+
+### Test sketch
+- orientation_present — doc contains exactly one H1 and a 3-sentence intro parag
+- all_four_layers — doc contains headings: orientation/intro, journey, each of t
+- each_component_has_usage — each component section contains at least one fenced
+- no_invented_content — every command in the doc is runnable against the actual 
+- newcomer_readable — doc can be read start-to-finish without prior context and 
+EOF
+} > \"$TMP\"
+beans update sandbox-1e0y --body-file \"$TMP\"
+rm \"$TMP\"","outcome":"pass","first_error":""}

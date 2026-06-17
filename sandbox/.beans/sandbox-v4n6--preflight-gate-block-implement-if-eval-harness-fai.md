@@ -1,11 +1,11 @@
 ---
 # sandbox-v4n6
 title: 'Preflight gate: block /implement if eval harness fails'
-status: in-progress
+status: completed
 type: feature
 priority: normal
 created_at: 2026-06-17T09:50:26Z
-updated_at: 2026-06-17T09:53:15Z
+updated_at: 2026-06-17T09:56:23Z
 ---
 
 The /implement skill has no quality gate on the bean's content before it starts
@@ -59,3 +59,17 @@ is sane.
 - gate_fail_ac — broken-bean.md (FAIL AC are specific and measurable) → aborts before branch, prints `ERROR: bean failed quality checks` + all FAIL lines
 - gate_fail_multiple — broken-bean.md (FAIL altitude + FAIL AC) → error names both failing checks, not just the first
 - gate_no_side_effects — after gate abort, no branch created, no files changed, working tree clean
+
+## Implementation Log
+
+**Branch:** feat/sandbox-v4n6-preflight-gate-block-implement-if-eval
+
+**Commits:**
+- e90e153 — Preflight gate: abort /implement if eval harness has any FAIL
+
+**Final test status:** PASS  (npm test → 29 tests, 5 files, all green)
+
+## Summary of Changes
+
+- Added eval-harness gate to Phase 1 preflight in `.claude/skills/implement/SKILL.md`: resolves the bean file path, runs `eval-kit/check.sh` against it, collects all FAIL lines, and aborts with `ERROR: bean failed quality checks` + each failing check before any branch is created.
+- All four Acceptance Criteria exercised: pass-through on clean bean, abort on vague AC, no branch created on abort, all failing checks named.
