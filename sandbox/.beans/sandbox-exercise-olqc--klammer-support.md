@@ -1,73 +1,93 @@
 ---
 # sandbox-exercise-olqc
-title: Klammer-Unterstützung im Rechner
-status: in-progress
+title: Parentheses Support (Shunting-Yard)
+status: completed
 type: feature
 priority: normal
 created_at: 2026-05-26T12:06:51Z
-updated_at: 2026-06-15T00:00:00Z
+updated_at: 2026-06-16T13:37:03Z
 ---
 
-Der Rechner unterstützt aktuell nur flache Ausdrücke mit `+ - * /` und fest verdrahteter Vorrangordnung. Nutzer können die Auswertungsreihenfolge nicht explizit steuern. Wir ergänzen runde Klammern `(` und `)` als Gruppierung, sodass beliebig tief verschachtelte Teilausdrücke vor dem umgebenden Ausdruck ausgewertet werden. Verhalten ohne Klammern bleibt unverändert.
+Der Rechner unterstützt aktuell nur flache Ausdrücke mit `+ - * /` und fest verdrahteter Vorrangordnung. Nutzer können die Auswertungsreihenfolge nicht explizit steuern. Diese Feature ergänzt runde Klammern `(` und `)` als Gruppierung, sodass beliebig tief verschachtelte Teilausdrücke vor dem umgebenden Ausdruck ausgewertet werden. Verhalten ohne Klammern bleibt unverändert.
 
 **Hinweise:**
-- Gewählter Ansatz: Minimal-Delta — Klammern als zusätzliche Eingabe-Symbole aufnehmen und die innerste Ausdrucksebene um eine Gruppierungs-Alternative erweitern
-- Bestehende Vorrang- und Assoziativitätsregeln bleiben unangetastet
-- Unäres Minus, Funktionen und andere Klammerformen sind explizit nicht Teil dieses Beans
+- Gewählter Ansatz: Shunting-Yard-Algorithmus (Dijkstra) — der Parser wird vollständig ersetzt
+- Der Algorithmus läuft in einem einzelnen Links-nach-rechts-Durchlauf über den Token-Strom
+- Er verwendet einen Operator-Stack und eine Output-Queue zur Einhaltung von Vorrang und Assoziativität
+- Klammern sind Stack-Sentinels: `(` wird gepusht, `)` räumt Operatoren bis zum passenden `(` ab
+- Die Output-Queue enthält Postfix-RPN; der Evaluator muss entsprechend angepasst werden
+- Fehlende oder überzählige Klammern müssen als verständliche Fehlermeldungen gemeldet werden
 
 ## High-Level Plan
 
-**Approach** — Grammatik-Erweiterung. Runde Klammern werden als neue Eingabe-Symbole erkannt und als zusätzliche Alternative in der innersten Ausdrucksebene zugelassen. Damit fügt sich Gruppierung sauber in die vorhandene rekursive Struktur ein; Operator-Vorrang und Assoziativität bleiben unverändert.
+**Approach** — Den rekursiven Abstiegsparser durch Dijkstras Shunting-Yard-Algorithmus ersetzen. Der Algorithmus verarbeitet den Token-Strom in einem einzigen Links-nach-rechts-Durchlauf: Operanden landen direkt in der Output-Queue, Operatoren werden über einen Stack nach Vorrang/Assoziativität geordnet. Klammern steuern den Stack als Sentinels. Der Evaluator wird aktualisiert, um die entstehende Postfix-Ausgabe auszuwerten. Die REPL-Schnittstelle bleibt unverändert.
 
 **Steps**
-- Schritt 1 — Eingabeerkennung um die zwei Klammer-Symbole erweitern, sodass `(` und `)` als eigene Token entstehen
-- Schritt 2 — Innerste Ausdrucksebene um die Alternative „geklammerter Teilausdruck" ergänzen, der rekursiv einen vollständigen Ausdruck enthalten darf
-- Schritt 3 — Fehlerfälle (fehlende schließende Klammer, überzählige schließende Klammer, leerer Klammerinhalt) als verständliche Parserfehler melden, ohne den REPL zu beenden
-- Schritt 4 — Tests auf allen Ebenen ergänzen: Symbol-Erkennung, Grammatik mit Verschachtelung, End-zu-End-Auswertung sowie Fehlerpfade
+- Schritt 1 — Token-Typ-Menge um `LPAREN` und `RPAREN` erweitern; Lexer anpassen, sodass `(` und `)` diese Token erzeugen
+- Schritt 2 — Parser als Shunting-Yard-Algorithmus neu schreiben: Token-Strom in eine Postfix-Output-Queue überführen; Operator-Stack für Vorrang und Assoziativität verwenden
+- Schritt 3 — Klammern im Algorithmus behandeln: `(` als Sentinel auf den Operator-Stack pushen; `)` Operatoren bis zum passenden `(` in die Queue räumen; fehlende oder überzählige Klammern als `Error` melden
+- Schritt 4 — Evaluator auf Postfix-Repräsentation umstellen, sodass er die RPN-Queue auswertet und eine Zahl liefert
+- Schritt 5 — Tests ergänzen: neue Token-Typen, Klammerausdrücke, Verschachtelungen, Fehlerpfade sowie Regressionstests für alle bestehenden Operatoren
 
 **Acceptance Criteria**
-- `(1+2)*3` ergibt `9`
-- `2*(3+4)` ergibt `14`
-- Verschachtelte Klammern werden korrekt aufgelöst, z.B. `((1+2)*(3+4))` ergibt `21`
-- Klammern überschreiben Vorrang, z.B. `(2+3)*(4-1)` ergibt `15`
-- Alle bisherigen Ausdrücke ohne Klammern liefern unverändert dieselben Ergebnisse (Regression-frei)
-- Fehlende schließende Klammer (`(1+2`) erzeugt eine verständliche Parserfehlermeldung, REPL läuft weiter
-- Überzählige schließende Klammer (`1+2)`) erzeugt eine Parserfehlermeldung, REPL läuft weiter
-- Leerer Klammerausdruck `()` erzeugt eine Parserfehlermeldung
+- `(2 + 3) * 4` ergibt `20`
+- `2 * (3 + 4)` ergibt `14`
+- Verschachtelte Klammern `((1+2)*(3+4))` ergeben `21`
+- `(2 + 3` (fehlende schließende Klammer) erzeugt eine verständliche Fehlermeldung; REPL läuft weiter
+- `2 + 3)` (überzählige schließende Klammer) erzeugt eine verständliche Fehlermeldung; REPL läuft weiter
+- `()` (leerer Klammerausdruck) erzeugt eine verständliche Fehlermeldung
+- Alle bisherigen klammerfreien Ausdrücke liefern unverändert dieselben Ergebnisse (regressionssicher)
 
 **Non-Goals**
-- Unäres Minus / unäres Plus
-- Eckige `[]` oder geschweifte `{}` Klammern
-- Variablen, Funktionen, weitere Operatoren
-- Änderung der bestehenden Operator-Vorrangordnung
+- Implizite Multiplikation wie `2(3+4)`
+- Funktionsaufrufe wie `sin(x)`
+- Unäres Minus oder Plus
+- Änderung der REPL-Schnittstelle oder des Ausgabeformats
 - Performance-Optimierungen am Parser
 
 ## Refined Plan
 
 ### Files to change
-- src/lexer.ts:3 — TokenType-Enum um `LPAREN` und `RPAREN` erweitern
-- src/lexer.ts:49 — Symbol-Switch in `Lexer.next()` um Branches für `(` und `)` ergänzen, jeweils ein Single-Char-Token zurückgeben
-- src/lexer.ts:72 — `tokenTypeName`-Switch um Namen für `LPAREN`/`RPAREN` ergänzen (Parser-Fehlermeldungen)
-- src/parser.ts:35 — Grammatik-Kommentar aktualisieren: `factor := NUMBER | '(' expr ')'`
-- src/parser.ts:85 — `parseFactor()` um `LPAREN`-Alternative: `advance()` über `(`, rekursiv `parseExpr()`, dann `RPAREN` erwarten; leeres `()` und fehlendes `)` als `Error` im Stil von :58/:87
-- tests/lexer.test.ts:13 — neuer `it("tokenizes parentheses")` analog zu „tokenizes all operators"
-- tests/parser.test.ts:27 — neue Tests `it("parens group overrides precedence")`, `it("nested parens")` analog zu „binds multiplication tighter than addition"
-- tests/parser.test.ts:41 — neue Tests `it("throws on a missing closing paren")`, `it("throws on empty parens")`, `it("throws on a stray closing paren")` analog zu „throws on a trailing token"/„throws on a missing operand"
-- tests/evaluator.test.ts:10 — neue Tests `it("parens simple")`, `it("parens on the right side")`, `it("nested parens")`, `it("parens override precedence")`, `it("regression without parens")` über den `evalStr`-Helper
+- src/lexer.ts:3 — extend TokenType enum with LPAREN and RPAREN
+- src/lexer.ts:49 — add `(` and `)` branches in Lexer.next() character switch
+- src/lexer.ts:72 — add LPAREN and RPAREN cases in tokenTypeName()
+- src/parser.ts:32 — replace recursive-descent body with shunting-yard; NodeKind / BinOp / Node interface / parse() signature all stay the same; algorithm builds Node AST on output stack instead of raw RPN tokens
+- tests/lexer.test.ts:13 — add it("tokenizes parentheses") alongside existing operator test
+- tests/parser.test.ts:27 — add it("parens override precedence"), it("parens on right side"), it("nested parens"), it("throws on unclosed paren"), it("throws on extra close paren"), it("throws on empty parens")
+- tests/evaluator.test.ts:10 — add e2e tests via existing evalStr() helper: parens simple, parens right, nested, regression without parens
 
 ### New signatures
-- (keine neuen Klassen/Funktionen) — `Lexer.next(): Token` und `Parser.parseFactor(): Node` behalten ihre Signatur; Erweiterung rein innerhalb bestehender Switches/Branches
-- AST/Evaluator unverändert — Gruppierung wird durch Baumform kodiert, kein neuer `NodeKind`
+- `next(): Token` — callers unchanged; two new switch arms added for `(` → LPAREN and `)` → RPAREN (src/lexer.ts:49)
+- `parse(source: string): Node` — external signature unchanged; internal implementation replaced by shunting-yard that builds Node tree on output stack (src/parser.ts:104)
+- `tokenTypeName(type: TokenType): string` — callers unchanged; LPAREN and RPAREN cases added (src/lexer.ts:72)
 
 ### Test sketch
-- lexer „tokenizes parentheses" — Input `"()"` → Token-Sequenz `LPAREN, RPAREN, END`
-- parser „parens group overrides precedence" — Input `"(1+2)*3"` → AST `Mul(Add(1,2), 3)`
-- parser „nested parens" — Input `"((1+2)*(3+4))"` → AST `Mul(Add(1,2), Add(3,4))`
-- parser „throws on a missing closing paren" — Input `"(1+2"` → `Error`
-- parser „throws on empty parens" — Input `"()"` → `Error`
-- parser „throws on a stray closing paren" — Input `"1+2)"` → `Error`
-- evaluator „parens simple" — Input `"(1+2)*3"` → `9`
-- evaluator „parens on the right side" — Input `"2*(3+4)"` → `14`
-- evaluator „nested parens" — Input `"((1+2)*(3+4))"` → `21`
-- evaluator „parens override precedence" — Input `"(2+3)*(4-1)"` → `15`
-- evaluator „regression without parens" — Input `"1+2*3"` → `7` (unverändertes Verhalten)
+- tokenizesParens — Input `"()"` → token sequence [LPAREN, RPAREN, END]
+- parensOverridePrecedence — Input `"(2+3)*4"` → evalStr → 20
+- parensOnRight — Input `"2*(3+4)"` → evalStr → 14
+- nestedParens — Input `"((1+2)*(3+4))"` → evalStr → 21
+- parensUnclosed — Input `"(1+2"` → parse throws Error
+- parensExtraClose — Input `"1+2)"` → parse throws Error
+- parensEmpty — Input `"()"` → parse throws Error
+- regression — Input `"1+2*3"` → evalStr → 7 (no parens, existing precedence unchanged)
+
+## Implementation Log
+
+**Branch:** `sandbox-exercise-olqc-klammer-support` (from `e0f27b8`)
+**Commit(s):** `fbb08cd` — feat(parser): add parentheses support via shunting-yard algorithm
+
+### Changes
+- src/lexer.ts — LPAREN and RPAREN added to TokenType enum, Lexer.next() switch, and tokenTypeName()
+- src/parser.ts — recursive-descent Parser class fully replaced by shunting-yard; NodeKind / BinOp / Node / parse() signature unchanged; evaluator untouched
+- tests/lexer.test.ts — added "tokenizes parentheses"
+- tests/parser.test.ts — added 6 new tests: parens override precedence, parens on right side, nested parens, throws on unclosed paren, throws on extra close paren, throws on empty parens
+- tests/evaluator.test.ts — added 4 e2e tests via evalStr(): parens simple, parens on right side, nested parens, regression no parens
+
+### Verification
+- typecheck: green (tsc --noEmit, 0 errors)
+- build: green (tsc, 0 errors)
+- tests: 27/27 passed (3 test files)
+- AC: `(2 + 3) * 4` → 20 ✓ | `2 * (3 + 4)` → 14 ✓ | `((1+2)*(3+4))` → 21 ✓ | `(2 + 3` → error ✓ | `2 + 3)` → error ✓ | `()` → error ✓ | `1+2*3` → 7 (regression) ✓
+
+### Deviations
+- Evaluator unchanged: the refined plan mentioned updating the evaluator to walk a "postfix representation", but the shunting-yard was implemented to build Node AST nodes on the output stack directly — so the evaluator and main.ts required zero changes.

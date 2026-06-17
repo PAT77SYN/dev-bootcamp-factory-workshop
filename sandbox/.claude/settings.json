@@ -1,17 +1,18 @@
 {
   "hooks": {
     "SessionStart": [
-      {
-        "hooks": [
-          { "type": "command", "command": "beans prime" }
-        ]
-      }
+      { "hooks": [ { "type": "command", "command": "beans prime" } ] }
     ],
     "PreCompact": [
+      { "hooks": [ { "type": "command", "command": "beans prime" } ] }
+    ],
+    "Stop": [
+      { "hooks": [ { "type": "command", "command": "bash .claude/hooks/trace-run.sh" } ] }
+    ],
+    "PostToolUse": [
       {
-        "hooks": [
-          { "type": "command", "command": "beans prime" }
-        ]
+        "matcher": "Bash",
+        "hooks": [ { "type": "command", "command": "bash .claude/hooks/tool-outcome.sh" } ]
       }
     ]
   }
