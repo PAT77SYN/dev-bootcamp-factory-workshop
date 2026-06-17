@@ -48,6 +48,7 @@ create a branch, do NOT edit source:**
 - Bean status is `completed` or `scrapped`
 - `git status --porcelain` is non-empty (working tree dirty)
 - `git rev-parse --abbrev-ref HEAD` is not `main`
+- `eval-kit/check.sh` against the bean file has any `FAIL` line → fix the bean's quality issues first
 
 Run each check explicitly:
 
@@ -55,6 +56,21 @@ Run each check explicitly:
 test -z "$(git status --porcelain)" || { echo "ERROR: working tree not clean"; exit 1; }
 HEAD_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 [ "$HEAD_BRANCH" = "main" ] || { echo "ERROR: not on main (on $HEAD_BRANCH)"; exit 1; }
+```
+
+Run the eval-harness gate — abort before any branch is created if any check fails:
+
+```bash
+BEAN_FILE=".beans/$(beans show <bean-id> --json | jq -r '.path')"
+if [ -f "eval-kit/check.sh" ] && [ -f "$BEAN_FILE" ]; then
+  EVAL_OUT="$(bash eval-kit/check.sh "$BEAN_FILE" 2>/dev/null)"
+  FAILURES="$(printf '%s\n' "$EVAL_OUT" | grep '^FAIL')"
+  if [ -n "$FAILURES" ]; then
+    echo "ERROR: bean failed quality checks:"
+    printf '%s\n' "$FAILURES"
+    exit 1
+  fi
+fi
 ```
 
 ### Phase 2 — Branch
