@@ -1,11 +1,11 @@
 ---
 # sandbox-vzwt
 title: Kommazahlen-Support im Calculator
-status: in-progress
+status: completed
 type: feature
 priority: normal
 created_at: 2026-05-26T13:22:49Z
-updated_at: 2026-06-17T08:37:54Z
+updated_at: 2026-06-17T09:01:35Z
 ---
 
 Der Calculator unterstützt aktuell nur ganzzahlige Arithmetik. Nutzer wollen mit Dezimalwerten rechnen (z.B. `1,5 + 2,5`). Dieses Feature stellt die gesamte Rechen-Pipeline auf Fließkomma um, akzeptiert Komma als Dezimaltrennzeichen in der Eingabe und gibt Ergebnisse ohne überflüssige Nullen aus.
@@ -76,3 +76,24 @@ Der Calculator unterstützt aktuell nur ganzzahlige Arithmetik. Nutzer wollen mi
 - calc_div_float — parse→eval→format "7/2" → "3,5"
 - calc_decimal_mul — parse→eval→format "1,5*2" → "3"
 - calc_div_by_zero — "1/0" → throws Error with readable message (edge case)
+
+## Implementation Log
+
+**Branch:** feat/sandbox-vzwt-kommazahlen-support-im-calculator
+
+**Commits:**
+- 04ad6d8 — Lexer: accept comma as decimal separator; reject double-comma
+- 44d95b5 — Evaluator: remove Math.trunc(), division now returns float
+- 24e5ed7 — Add formatResult: comma decimal separator, no trailing zeros
+- 9b622b7 — Main: wire formatResult into REPL output
+- f4014e1 — Add end-to-end tests covering all Acceptance Criteria
+
+**Final test status:** PASS  (npm test → 29 tests, 5 files, all green)
+
+## Summary of Changes
+
+- **Lexer**: decimal literals with comma separator now tokenized as float (`1,5` → 1.5); second comma in a literal raises an error.
+- **Evaluator**: `Math.trunc()` removed — division returns the true float result (`7/2` → 3.5).
+- **format.ts** (new): `formatResult(value)` renders numbers with comma as decimal separator, strips trailing zeros, integer results appear without comma.
+- **Main/REPL**: output now routed through `formatResult` — no dot ever appears in output.
+- **Tests**: lexer, evaluator, format, and E2E test files updated/added; all six Acceptance Criteria exercised and passing.

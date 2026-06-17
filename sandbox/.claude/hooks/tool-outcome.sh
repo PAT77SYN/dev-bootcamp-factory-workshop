@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 # PostToolUse hook — record npm build/test pass/fail to runs/tool-outcomes.jsonl.
 # Only fires for Bash commands that invoke npm run build or npm test.
-cd "${CLAUDE_PROJECT_DIR:-.}" 2>/dev/null || exit 0
+INPUT="$(cat)"
+session="$(echo "$INPUT" | jq -r '.session_id // .sessionId // "unknown"' 2>/dev/null)"
+project_dir="$(echo "$INPUT" | jq -r '.cwd // empty' 2>/dev/null)"
+project_dir="${project_dir:-${CLAUDE_PROJECT_DIR:-.}}"
+
+cd "$project_dir" 2>/dev/null || exit 0
 mkdir -p runs
 
-INPUT="$(cat)"
 tool="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null)"
 [ "$tool" = "Bash" ] || exit 0
 
@@ -15,7 +19,6 @@ case "$cmd" in
 esac
 
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-session="${CLAUDE_SESSION_ID:-unknown}"
 response="$(echo "$INPUT" | jq -r '.tool_response // ""' 2>/dev/null)"
 
 # Detect outcome by scanning response for error markers
