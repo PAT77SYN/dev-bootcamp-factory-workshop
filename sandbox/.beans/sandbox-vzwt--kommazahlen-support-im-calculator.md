@@ -1,11 +1,11 @@
 ---
 # sandbox-vzwt
 title: Kommazahlen-Support im Calculator
-status: completed
+status: in-progress
 type: feature
 priority: normal
 created_at: 2026-05-26T13:22:49Z
-updated_at: 2026-06-17T09:01:35Z
+updated_at: 2026-06-17T09:07:15Z
 ---
 
 Der Calculator unterstützt aktuell nur ganzzahlige Arithmetik. Nutzer wollen mit Dezimalwerten rechnen (z.B. `1,5 + 2,5`). Dieses Feature stellt die gesamte Rechen-Pipeline auf Fließkomma um, akzeptiert Komma als Dezimaltrennzeichen in der Eingabe und gibt Ergebnisse ohne überflüssige Nullen aus.
