@@ -2,8 +2,7 @@
 
 import { BinOp, Node, NodeKind } from "./parser.js";
 
-// Walk the AST and return the integer result. Throws Error on division by
-// zero. Pure integer arithmetic — no floats.
+// Walk the AST and return the result. Throws Error on division by zero.
 export function evaluate(node: Node): number {
   switch (node.kind) {
     case NodeKind.Number:
@@ -23,7 +22,7 @@ export function evaluate(node: Node): number {
           if (right === 0) {
             throw new Error("division by zero");
           }
-          return Math.trunc(left / right);
+          return left / right;
       }
     }
   }

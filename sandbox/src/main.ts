@@ -2,6 +2,7 @@
 
 import { createInterface } from "node:readline";
 import { evaluate } from "./evaluator.js";
+import { formatResult } from "./format.js";
 import { parse } from "./parser.js";
 
 function main(): void {
@@ -18,7 +19,7 @@ function main(): void {
     if (line.length !== 0) {
       try {
         const ast = parse(line);
-        process.stdout.write(`${evaluate(ast)}\n`);
+        process.stdout.write(`${formatResult(evaluate(ast))}\n`);
       } catch (err) {
         process.stdout.write(`error: ${(err as Error).message}\n`);
       }

@@ -15,9 +15,9 @@ describe("Evaluator", () => {
     expect(evalStr("3*4")).toBe(12);
   });
 
-  it("truncates integer division", () => {
+  it("divides returning float when not evenly divisible", () => {
     expect(evalStr("10/2")).toBe(5);
-    expect(evalStr("7/2")).toBe(3); // truncates, not rounds
+    expect(evalStr("7/2")).toBe(3.5);
   });
 
   it("subtracts", () => {
