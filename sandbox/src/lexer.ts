@@ -37,10 +37,28 @@ export class Lexer {
     const c = this.source[this.pos];
 
     if (isDigit(c)) {
-      let value = 0;
+      let intPart = 0;
       while (this.pos < this.source.length && isDigit(this.source[this.pos])) {
-        value = value * 10 + (this.source.charCodeAt(this.pos) - 48);
+        intPart = intPart * 10 + (this.source.charCodeAt(this.pos) - 48);
         this.pos++;
+      }
+      let value: number = intPart;
+      if (this.pos < this.source.length && this.source[this.pos] === ",") {
+        this.pos++;
+        if (this.pos >= this.source.length || !isDigit(this.source[this.pos])) {
+          throw new Error(`expected digit after decimal comma at position ${this.pos - 1}`);
+        }
+        let fracNum = 0;
+        let fracDen = 1;
+        while (this.pos < this.source.length && isDigit(this.source[this.pos])) {
+          fracNum = fracNum * 10 + (this.source.charCodeAt(this.pos) - 48);
+          fracDen *= 10;
+          this.pos++;
+        }
+        if (this.pos < this.source.length && this.source[this.pos] === ",") {
+          throw new Error(`unexpected second decimal comma at position ${this.pos}`);
+        }
+        value = intPart + fracNum / fracDen;
       }
       return { type: TokenType.NUMBER, value, pos: start };
     }

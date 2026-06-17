@@ -42,4 +42,24 @@ describe("Lexer", () => {
     expect(lexer.next().type).toBe(TokenType.NUMBER);
     expect(() => lexer.next()).toThrow();
   });
+
+  it("tokenizes a decimal literal with comma", () => {
+    const lexer = new Lexer("1,5");
+    const tok = lexer.next();
+    expect(tok.type).toBe(TokenType.NUMBER);
+    expect(tok.value).toBe(1.5);
+    expect(lexer.next().type).toBe(TokenType.END);
+  });
+
+  it("tokenizes multi-digit decimal literal", () => {
+    const lexer = new Lexer("12,75");
+    const tok = lexer.next();
+    expect(tok.type).toBe(TokenType.NUMBER);
+    expect(tok.value).toBe(12.75);
+  });
+
+  it("throws on a second decimal comma in a literal", () => {
+    const lexer = new Lexer("1,5,2");
+    expect(() => lexer.next()).toThrow();
+  });
 });
